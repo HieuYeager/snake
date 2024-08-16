@@ -1,0 +1,13 @@
+body{
+    font-size: 'Courier', Courier, monospace;
+    text-align: center;
+    
+}
+
+h1{
+    color: green;
+}
+
+canvas{
+    border: 1px solid black;
+}
