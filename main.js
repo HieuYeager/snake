@@ -3,15 +3,18 @@ var rows = 20;
 var cols = 20;
 var board;
 var context;
-var timeUpdate = 150;
+var timeUpdate = 300;
 var gameOver = false;
 var intervalId;
+var point = 0;
+var pointCounter;
 
 //snake head
 var snake = {X: 5, Y: 15};
 var snakeBody = [[]];
 
 var veclocity = {X: 0, Y: 0};
+var newVeclocity = {X: 0, Y: 0};
 
 //food
 var food = {X: 0, Y: 0};
@@ -21,38 +24,55 @@ window.onload = function(){
     board.height = rows * blocksize;
     board.width = cols * blocksize;
     context = board.getContext("2d");
+    pointCounter = document.getElementById("point");
     placeFood();
-    document.addEventListener("keyup", changeDirection);
+    document.addEventListener("keyup", newDirection);
     intervalId = setInterval(update, timeUpdate);
 }
 
+//update
 function update(){
     if(gameOver){
         alert("Game Over");
-        console.log("ngu");
+        // console.log("ngu");
         clearInterval(intervalId);
         return;
     }
+
     context.fillStyle = "black";
     context.fillRect(0, 0, board.width, board.height);
-
-    if(snake.X == food.X && snake.Y == food.Y){
-        snakeBody.push([snake.X, snake.Y]);
-        placeFood();
-    }
 
     context.fillStyle = "red";
     context.fillRect(food.X * blocksize, food.Y * blocksize, blocksize, blocksize);
 
-//logic sanke
+//eat
+    if(snake.X == food.X && snake.Y == food.Y){
+        snakeBody.push([snake.X, snake.Y]);
+        placeFood();
+        point++;
+        pointCounter.textContent = point;
+        if(timeUpdate > 150){
+            timeUpdate -= 10;
+        }
+        else if(point > 30 && timeUpdate > 100  ){
+            timeUpdate -= 2;
+        }
+        console.log(timeUpdate);
+        clearInterval(intervalId);
+        intervalId = setInterval(update, timeUpdate);
+    }
+
+//logic snake
     for (let i = snakeBody.length - 1; i > 0; i--) {
         snakeBody[i] = snakeBody[i - 1];
     }
     if (snakeBody.length) {
         snakeBody[0] = [snake.X, snake.Y];
     }
+    changeDirection();
     snake.X += veclocity.X ;
     snake.Y += veclocity.Y ;
+    // console.log(veclocity);
 
     context.fillStyle = "lime";
     for (let i = 0; i < snakeBody.length; i++) {
@@ -72,34 +92,49 @@ function update(){
     }
 }
 
+
+//func
 function placeFood(){
     food.X = Math.floor(Math.random() * cols);
     food.Y = Math.floor(Math.random() * rows);
 }
 
-function changeDirection(e){
-    if(e.code == "KeyW" && veclocity.Y != 1){
-        veclocity.X = 0;
-        veclocity.Y = -1;
+function changeDirection(){
+    if(veclocity.X + newVeclocity.X != 0){
+        veclocity.X = newVeclocity.X;
+        veclocity.Y = newVeclocity.Y;
+    }
+    else if (veclocity.Y + newVeclocity.Y != 0) {
+        veclocity.Y = newVeclocity.Y;
+        veclocity.X = newVeclocity.X;
     }
 
-    else if(e.code == "KeyS" && veclocity.Y != -1){
-        veclocity.X = 0;
-        veclocity.Y = 1;
+}
+
+function newDirection(e){
+    if(e.code == "KeyW"){
+        newVeclocity.X = 0;
+        newVeclocity.Y = -1;
+    }
+
+    else if(e.code == "KeyS"){
+        newVeclocity.X = 0;
+        newVeclocity.Y = 1;
     }
     
-    else if(e.code == "KeyA" && veclocity.X != 1){
-        veclocity.X = -1;
-        veclocity.Y = 0;
+    else if(e.code == "KeyA"){
+        newVeclocity.X = -1;
+        newVeclocity.Y = 0;
     }
     
-    else if(e.code == "KeyD" && veclocity.X != -1){
-        veclocity.X = 1;
-        veclocity.Y = 0;
+    else if(e.code == "KeyD"){
+        newVeclocity.X = 1;
+        newVeclocity.Y = 0;
     }
     else if(e.code == "Space"){
         veclocity.X = 0;
         veclocity.Y = 0;
+        clearInterval(intervalId);
     }
     console.log(e.code);
 }
