@@ -8,6 +8,7 @@ var gameOver = false;
 var intervalId;
 var point = 0;
 var pointCounter;
+var pause = false;
 
 //snake head
 var snake = {X: 5, Y: 15};
@@ -28,6 +29,7 @@ window.onload = function(){
     placeFood();
     document.addEventListener("keyup", newDirection);
     intervalId = setInterval(update, timeUpdate);
+    alert("use AWSD to move, space to pause/resume");
 }
 
 //update
@@ -42,8 +44,6 @@ function update(){
     context.fillStyle = "black";
     context.fillRect(0, 0, board.width, board.height);
 
-    context.fillStyle = "red";
-    context.fillRect(food.X * blocksize, food.Y * blocksize, blocksize, blocksize);
 
 //eat
     if(snake.X == food.X && snake.Y == food.Y){
@@ -51,10 +51,13 @@ function update(){
         placeFood();
         point++;
         pointCounter.textContent = point;
-        if(timeUpdate > 150){
+        if(timeUpdate > 200){
             timeUpdate -= 10;
         }
-        else if(point > 30 && timeUpdate > 100  ){
+        else if(timeUpdate > 150){
+            timeUpdate -= 5;
+        }
+        else if(point > 25 && timeUpdate > 100  ){
             timeUpdate -= 2;
         }
         console.log(timeUpdate);
@@ -78,6 +81,10 @@ function update(){
     for (let i = 0; i < snakeBody.length; i++) {
         context.fillRect(snakeBody[i][0] * blocksize, snakeBody[i][1] * blocksize, blocksize, blocksize)
     }
+
+    context.fillStyle = "red";
+    context.fillRect(food.X * blocksize, food.Y * blocksize, blocksize, blocksize);
+
     context.fillStyle = "yellow";
     context.fillRect(snake.X * blocksize, snake.Y * blocksize, blocksize, blocksize);
 
@@ -134,7 +141,17 @@ function newDirection(e){
     else if(e.code == "Space"){
         veclocity.X = 0;
         veclocity.Y = 0;
-        clearInterval(intervalId);
+        if(pause){
+            intervalId = setInterval(update, timeUpdate);
+            pause = false;
+            console.log("resume");
+        }
+        else{
+            clearInterval(intervalId);
+            pause = true;
+            console.log("pause");
+        }
+        
     }
     console.log(e.code);
 }
